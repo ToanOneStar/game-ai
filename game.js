@@ -53,6 +53,9 @@ class RisingNationMazeGame {
             right: null
         };
 
+        // Character state timer
+        this.characterStateTimer = null;
+
         // Quiz questions database
         this.questions = [
             // Kinh tế
@@ -239,6 +242,18 @@ class RisingNationMazeGame {
             img.src = `male/${state}.png`;
             this.characterImages[state] = img;
         });
+    }
+
+    resetCharacterState() {
+        // Clear existing timer
+        if (this.characterStateTimer) {
+            clearTimeout(this.characterStateTimer);
+        }
+        
+        // Set timer to reset to normal state after 200ms
+        this.characterStateTimer = setTimeout(() => {
+            this.player.state = 'normal';
+        }, 200);
     }
 
     setupEventListeners() {
@@ -508,15 +523,23 @@ class RisingNationMazeGame {
         // Check each direction - only one direction per key press
         if (key.toLowerCase() === 'w' || key === 'ArrowUp') {
             newY -= 1;
+            this.player.state = 'up';
+            this.resetCharacterState();
             moved = true;
         } else if (key.toLowerCase() === 's' || key === 'ArrowDown') {
             newY += 1;
+            this.player.state = 'down';
+            this.resetCharacterState();
             moved = true;
         } else if (key.toLowerCase() === 'a' || key === 'ArrowLeft') {
             newX -= 1;
+            this.player.state = 'left';
+            this.resetCharacterState();
             moved = true;
         } else if (key.toLowerCase() === 'd' || key === 'ArrowRight') {
             newX += 1;
+            this.player.state = 'right';
+            this.resetCharacterState();
             moved = true;
         }
 
@@ -671,21 +694,26 @@ class RisingNationMazeGame {
             this.ctx.fillRect(screenX, screenY, this.TILE_SIZE, this.TILE_SIZE);
         });
 
-        // Draw player - make it more visible
+        // Draw player character image
         const playerScreenX = this.player.x * this.TILE_SIZE + (this.TILE_SIZE - this.player.size) / 2;
         const playerScreenY = this.player.y * this.TILE_SIZE + (this.TILE_SIZE - this.player.size) / 2;
 
-        // console.log(`Drawing player at (${this.player.x}, ${this.player.y}) -> screen (${playerScreenX}, ${playerScreenY})`);
-        // console.log(`Player size: ${this.player.size}, Tile size: ${this.TILE_SIZE}`);
-
-        // Draw player with bright red color
-        this.ctx.fillStyle = this.player.color;
-        this.ctx.fillRect(playerScreenX, playerScreenY, this.player.size, this.player.size);
-
-        // Add border to make it more visible
-        this.ctx.strokeStyle = '#ffffff';
-        this.ctx.lineWidth = 3;
-        this.ctx.strokeRect(playerScreenX, playerScreenY, this.player.size, this.player.size);
+        // Get current character image based on state
+        const currentImage = this.characterImages[this.player.state];
+        
+        if (currentImage && currentImage.complete) {
+            // Draw character image
+            this.ctx.drawImage(currentImage, playerScreenX, playerScreenY, this.player.size, this.player.size);
+        } else {
+            // Fallback: draw colored rectangle if image not loaded
+            this.ctx.fillStyle = this.player.color;
+            this.ctx.fillRect(playerScreenX, playerScreenY, this.player.size, this.player.size);
+            
+            // Add border to make it more visible
+            this.ctx.strokeStyle = '#ffffff';
+            this.ctx.lineWidth = 3;
+            this.ctx.strokeRect(playerScreenX, playerScreenY, this.player.size, this.player.size);
+        }
 
         // Draw grid lines
         this.ctx.strokeStyle = '#bdc3c7';
