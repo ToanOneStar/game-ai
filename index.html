@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đất Nước Vươn Mình - The Rising Nation</title>
+    <title>Đất Nước Vươn Mình - Game Mê Cung Quiz</title>
     <style>
         * {
             margin: 0;
@@ -331,14 +331,42 @@
             margin-top: 20px;
             font-size: 1.1em;
         }
+        
+        .menu-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .menu-btn {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+        
+        .menu-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .history-btn-menu {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+        }
     </style>
 </head>
 <body>
     <div class="game-container">
-        <!-- Difficulty Selection Screen -->
-        <div id="difficultyScreen" class="difficulty-selection">
-            <h1 class="game-title">Đất Nước Vươn Mình</h1>
-            <p class="game-subtitle">Quiz Game - Khám phá và học hỏi về sự phát triển đất nước</p>
+        <!-- Main Menu Screen -->
+        <div id="mainMenu" class="difficulty-selection">
+            <h1 class="game-title">ĐẤT NƯỚC VƯƠN MÌNH</h1>
+            <p class="game-subtitle">Game Mê Cung Quiz - Khám phá tri thức Việt Nam</p>
             
             <div class="difficulty-options">
                 <button class="difficulty-btn easy" data-difficulty="easy">
@@ -356,8 +384,14 @@
             </div>
             
             <button id="startBtn" class="start-btn" style="display: none;">
-                Bắt đầu chơi
+                Bắt đầu trò chơi
             </button>
+            
+            <div class="menu-buttons">
+                <button class="menu-btn history-btn-menu" onclick="showHistory()">
+                    Xem lịch sử điểm
+                </button>
+            </div>
         </div>
         
         <!-- Game Screen -->
@@ -372,7 +406,7 @@
                 </div>
             </div>
             
-            <canvas id="gameCanvas" width="800" height="600"></canvas>
+            <canvas id="gameCanvas" width="500" height="500"></canvas>
             
             <div class="controls">
                 <strong>Điều khiển:</strong> WASD hoặc mũi tên để di chuyển | Phím 1, 2, 3 để trả lời | ESC để thoát
@@ -385,15 +419,15 @@
             <table class="history-table">
                 <thead>
                     <tr>
-                        <th>Lần chơi</th>
-                        <th>Mức độ</th>
+                        <th>Cấp độ</th>
+                        <th>Thời gian (s)</th>
                         <th>Điểm số</th>
                     </tr>
                 </thead>
                 <tbody id="historyTableBody">
                 </tbody>
             </table>
-            <button class="back-btn" onclick="showDifficultyScreen()">Quay lại</button>
+            <button class="back-btn" onclick="showMainMenu()">⬅ Quay lại</button>
         </div>
     </div>
     
@@ -408,8 +442,8 @@
     <!-- Game Over Popup -->
     <div id="gameOverPopup" class="game-over-popup">
         <div class="game-over-content">
-            <h2 class="game-over-title">⏰ Hết thời gian!</h2>
-            <div class="final-score">Bạn được <span id="finalScore">0</span> điểm</div>
+            <h2 class="game-over-title" id="gameOverTitle">⏰ Hết thời gian!</h2>
+            <div class="final-score">Điểm: <span id="finalScore">0</span> | Thời gian: <span id="finalTime">0</span>s</div>
             <div class="motivational-quote">
                 "Đất nước vươn mình – Tương lai bắt đầu từ tri thức!"
             </div>
