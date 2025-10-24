@@ -4,6 +4,9 @@
 class RisingNationMazeGame {
     constructor() {
         this.canvas = document.getElementById('gameCanvas');
+        if (!this.canvas) {
+            throw new Error('Canvas element not found!');
+        }
         this.ctx = this.canvas.getContext('2d');
         this.width = this.canvas.width;
         this.height = this.canvas.height;
@@ -224,6 +227,16 @@ class RisingNationMazeGame {
         this.showMainMenu();
     }
 
+    showMainMenu() {
+        document.getElementById('historyScreen').style.display = 'none';
+        document.getElementById('mainMenu').style.display = 'block';
+
+        // Reset difficulty selection
+        document.querySelectorAll('.difficulty-btn').forEach(btn => {
+            btn.style.opacity = '1';
+        });
+    }
+
     loadCharacterImages() {
         const imageStates = ['normal', 'up', 'down', 'left', 'right'];
         let loadedCount = 0;
@@ -262,11 +275,6 @@ class RisingNationMazeGame {
             btn.addEventListener('click', (e) => {
                 this.selectDifficulty(e.target.dataset.difficulty);
             });
-        });
-
-        // Start game
-        document.getElementById('startBtn').addEventListener('click', () => {
-            this.startGame();
         });
 
         // Keyboard input
@@ -325,8 +333,8 @@ class RisingNationMazeGame {
                 break;
         }
 
-        // Show start button
-        document.getElementById('startBtn').style.display = 'block';
+        // Show instructions popup directly
+        this.showInstructions();
     }
 
     generateMaze() {
@@ -446,8 +454,31 @@ class RisingNationMazeGame {
         }
     }
 
-    startGame() {
-        console.log('Starting game...');
+
+    showInstructions() {
+        // Hide main menu and show instructions
+        document.getElementById('mainMenu').style.display = 'none';
+        document.getElementById('instructionsPopup').style.display = 'flex';
+    }
+
+    closeInstructions() {
+        // Hide instructions and go back to main menu
+        document.getElementById('instructionsPopup').style.display = 'none';
+        document.getElementById('mainMenu').style.display = 'block';
+        
+        // Reset difficulty selection
+        document.querySelectorAll('.difficulty-btn').forEach(btn => {
+            btn.style.opacity = '1';
+        });
+        // Don't reset difficulty - keep it for when user clicks "Bắt đầu chơi"
+    }
+
+    startGameFromInstructions() {
+        if (!this.difficulty) {
+            alert('Vui lòng chọn độ khó trước khi bắt đầu chơi!');
+            return;
+        }
+        
         this.gameState = 'playing';
         this.gameRunning = true;
         this.score = 0;
@@ -475,17 +506,14 @@ class RisingNationMazeGame {
         document.getElementById('score').textContent = this.score;
 
         // Generate new maze
-        console.log('Generating maze...');
         this.generateMaze();
 
         // Reset player position
         this.player.x = this.START_X;
         this.player.y = this.START_Y;
-        console.log(`Player starting at (${this.player.x}, ${this.player.y})`);
-        console.log(`Player object:`, this.player);
 
-        // Hide menu, show game
-        document.getElementById('mainMenu').style.display = 'none';
+        // Hide instructions, show game
+        document.getElementById('instructionsPopup').style.display = 'none';
         document.getElementById('gameScreen').style.display = 'block';
 
         // Clear any existing timer
@@ -497,7 +525,6 @@ class RisingNationMazeGame {
         this.startTimer();
 
         // Start game loop
-        console.log('Starting game loop...');
         this.gameLoop();
     }
 
@@ -867,10 +894,37 @@ function showMainMenu() {
     document.querySelectorAll('.difficulty-btn').forEach(btn => {
         btn.style.opacity = '1';
     });
-    document.getElementById('startBtn').style.display = 'none';
+}
+
+function closeInstructions() {
+    if (window.game) {
+        window.game.closeInstructions();
+    }
+}
+
+function startGameFromInstructions() {
+    if (window.game) {
+        window.game.startGameFromInstructions();
+    }
 }
 
 // Initialize game when page loads
 document.addEventListener('DOMContentLoaded', () => {
-    window.game = new RisingNationMazeGame();
+    try {
+        window.game = new RisingNationMazeGame();
+    } catch (error) {
+        console.error('Error initializing game:', error);
+        alert('Lỗi khởi tạo game: ' + error.message);
+    }
 });
+
+// Alternative initialization - try again after a short delay
+setTimeout(() => {
+    if (!window.game) {
+        try {
+            window.game = new RisingNationMazeGame();
+        } catch (error) {
+            console.error('Retry failed:', error);
+        }
+    }
+}, 1000);
